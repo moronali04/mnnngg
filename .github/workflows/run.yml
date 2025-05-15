@@ -13,23 +13,25 @@ jobs:
     strategy:
       matrix:
         node-version: [20.x]
-        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
-    # Step to check out the repository code
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
-    # Step to set up the specified Node.js version
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v2
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
+        cache: 'npm'                                 # Dependency caching :contentReference[oaicite:10]{index=10}
+        cache-dependency-path: '**/package-lock.json'
+        check-latest: true                           # Ensure latest minor/patch :contentReference[oaicite:11]{index=11}
 
-    # Step to install dependencies
+    - name: Configure npm
+      run: |
+        echo "engine-strict=false" >> ~/.npmrc      # Ignore engine warnings :contentReference[oaicite:12]{index=12}
+
     - name: Install dependencies
-      run: npm install
+      run: npm ci                                  # Use ci for reproducible installs
 
-    # Step to run the bot with the correct port
     - name: Start the bot
       env:
         PORT: 8080
